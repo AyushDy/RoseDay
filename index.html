@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <!-- Mobile-friendly viewport with zoom disabled -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- Enable mobile web app mode -->
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Rose Day Surprise 🌹</title>
   <style>
     /* Basic styling */
@@ -19,7 +22,7 @@
       position: relative;
       height: 100vh;
     }
-    /* Floating rose styling (now using an image) */
+    /* Floating rose styling */
     .rose {
       position: absolute;
       width: 50px;
@@ -28,7 +31,6 @@
       animation: floatAround 10s infinite ease-in-out;
       will-change: transform;
     }
-    /* Ensure the image fills the container */
     .rose img {
       width: 100%;
       height: 100%;
@@ -109,6 +111,28 @@
       max-width: 100%;
       height: auto;
     }
+    /* Mobile-specific adjustments */
+    @media (max-width: 480px) {
+      .message-box {
+        width: 90%;
+        padding: 20px;
+        bottom: -250px;
+      }
+      button {
+        font-size: 16px;
+        padding: 12px 24px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+      p {
+        font-size: 16px;
+      }
+      .rose {
+        width: 70px;
+        height: 70px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -116,19 +140,19 @@
     <div class="message-box" id="messageBox">
       <!-- Bouquet image loaded from the root directory -->
       <div class="bouquet">
-        <img src="./upscalemedia-transformed-removebg-preview.png" alt="Bouquet" />
+        <img src="./upscalemedia-transformed-removebg-preview.png" alt="Bouquet">
       </div>
       <h1>Happy Rose Day! 🌹</h1>
       <p>
         Every petal represents my admiration for you.<br>
         You make my world brighter and more beautiful.<br>
-        Thank you for being mine! 😆😆😆
-        i love you jenny❤️! mwwaaah😘🥰🥰
-        (i really suck at designs*😅)
+        Thank you for being mine! 😆😆😆<br>
+        I love you Jenny ❤️! Mwwaaah 😘🥰<br>
+        (I really suck at designs 😅)
       </p>
-      <!-- Existing button to play music -->
+      <!-- Button to play music -->
       <button onclick="playAudio()">Click for Music 🎵</button>
-      <!-- New button to open Telegram on Android -->
+      <!-- Button to open Telegram (works on mobile devices) -->
       <!-- <button onclick="openTelegram()">Open Telegram</button> -->
     </div>
   </div>
@@ -170,8 +194,8 @@
       const rose = this;
       rose.isDragging = false;
   
-      const startX = (e.type.startsWith("touch")) ? e.touches[0].clientX : e.clientX;
-      const startY = (e.type.startsWith("touch")) ? e.touches[0].clientY : e.clientY;
+      const startX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX;
+      const startY = e.type.startsWith("touch") ? e.touches[0].clientY : e.clientY;
       rose.startX = startX;
       rose.startY = startY;
   
@@ -187,8 +211,8 @@
       rose.style.animation = 'none';
   
       function moveHandler(eMove) {
-        const moveX = (eMove.type.startsWith("touch")) ? eMove.touches[0].clientX : eMove.clientX;
-        const moveY = (eMove.type.startsWith("touch")) ? eMove.touches[0].clientY : eMove.clientY;
+        const moveX = eMove.type.startsWith("touch") ? eMove.touches[0].clientX : eMove.clientX;
+        const moveY = eMove.type.startsWith("touch") ? eMove.touches[0].clientY : eMove.clientY;
         const dx = moveX - startX;
         const dy = moveY - startY;
   
@@ -247,7 +271,7 @@
       for (let i = 0; i < 50; i++) {
         const rose = document.createElement('div');
         rose.className = 'rose';
-        rose.innerHTML = '<img src="./rose-float.png" alt="rose" />';
+        rose.innerHTML = '<img src="./rose-float.png" alt="rose">';
         rose.style.left = Math.random() * 100 + 'vw';
         rose.style.top = Math.random() * 100 + 'vh';
         rose.style.animationDuration = 8 + Math.random() * 4 + 's';
@@ -259,13 +283,10 @@
     }
   
     function createInteractiveRose(e) {
-      if (
-        e.target === document.body ||
-        e.target === document.getElementById('container')
-      ) {
+      if (e.target === document.body || e.target === document.getElementById('container')) {
         const rose = document.createElement('div');
         rose.className = 'rose';
-        rose.innerHTML = '<img src="./rose-float.png" alt="rose" />';
+        rose.innerHTML = '<img src="./rose-float.png" alt="rose">';
         rose.style.left = e.pageX + 'px';
         rose.style.top = e.pageY + 'px';
         rose.style.animationDuration = 8 + Math.random() * 4 + 's';
@@ -285,7 +306,7 @@
       document.getElementById('messageBox').classList.add('show');
     }
   
-    // Modified: Auto-play the audio on document load.
+    // Auto-play the audio on user interaction
     function playAudio() {
       const audio = document.getElementById('myAudio');
       if (audio) {
@@ -294,17 +315,15 @@
       }
     }
   
-    // New function to open Telegram using the tg:// URL scheme.
+    // Open Telegram using the tg:// URL scheme (mobile friendly)
     function openTelegram() {
-      // Replace "YourTelegramUsername" with your actual Telegram username.
-    window.location.href = "tg://resolve?phone=+918340247339";
+      window.location.href = "tg://resolve?phone=+918340247339";
     }
   
     createRoses();
     document.body.addEventListener('click', showMessage, { once: true });
     document.addEventListener('click', createInteractiveRose);
   
-    // Wait for all resources to load before revealing the page and starting the audio.
     window.addEventListener("load", function() {
       document.body.style.visibility = "visible";
       playAudio();

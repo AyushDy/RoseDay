@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rose Day Surprise 🌹</title>
+  <style>
+    /* Basic styling */
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(45deg, #f3a0ca, #fe81c4, #fe49a4);
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      cursor: pointer;
+      visibility: hidden; /* Hide page until all resources load */
+    }
+    .container {
+      position: relative;
+      height: 100vh;
+    }
+    /* Floating rose styling (now using an image) */
+    .rose {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      pointer-events: auto;
+      animation: floatAround 10s infinite ease-in-out;
+      will-change: transform;
+    }
+    /* Ensure the image fills the container */
+    .rose img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    @keyframes floatAround {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      25%  { transform: translate(20px, -30px) rotate(10deg); }
+      50%  { transform: translate(-20px, -50px) rotate(0deg); }
+      75%  { transform: translate(30px, 20px) rotate(-10deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    /* Glow effect on release */
+    .glow {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+      transform: translate(-50%, -50%) scale(0);
+      pointer-events: none;
+      z-index: 9999;
+      animation: glowAnimation 1s forwards;
+    }
+    @keyframes glowAnimation {
+      0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(20); opacity: 0; }
+    }
+    /* Message box & bouquet styling */
+    .message-box {
+      position: fixed;
+      bottom: -300px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.9);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      text-align: center;
+      transition: all 1s ease;
+      width: 80%;
+      max-width: 400px;
+    }
+    .message-box.show {
+      bottom: 20px;
+    }
+    button {
+      background: #ff007f;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 25px;
+      font-size: 18px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.3s;
+    }
+    button:hover {
+      transform: scale(1.1);
+    }
+    h1 {
+      color: #ff007f;
+      margin-bottom: 15px;
+    }
+    p {
+      font-size: 18px;
+      line-height: 1.6;
+      color: #333;
+    }
+    /* Bouquet image styling */
+    .bouquet {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .bouquet img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="message-box" id="messageBox">
+      <!-- Bouquet image loaded from the root directory -->
+      <div class="bouquet">
+        <img src="./upscalemedia-transformed-removebg-preview.png" alt="Bouquet" />
+      </div>
+      <h1>Happy Rose Day! 🌹</h1>
+      <p>
+        Every petal represents my admiration for you.<br>
+        You make my world brighter and more beautiful.<br>
+        Thank you for being mine! 😆😆😆
+        i love you jenny❤️! mwwaaah😘🥰🥰
+        (i really suck at designs*😅)
+      </p>
+      <!-- Existing button to play music -->
+      <button onclick="playAudio()">Click for Music 🎵</button>
+      <!-- New button to open Telegram on Android -->
+      <!-- <button onclick="openTelegram()">Open Telegram</button> -->
+    </div>
+  </div>
+
+  <!-- Background audio for the page -->
+  <audio id="myAudio" src="./Blue-Yung-Kai.mp3"></audio>
+  <!-- Hidden chime audio for release effect -->
+  <audio id="chimeAudio" src="./skysfx-bird003.mp3"></audio>
+
+  <script>
+    // ---------------------------
+    // GLOW EFFECT
+    // ---------------------------
+    function createGlow() {
+      const glow = document.createElement('div');
+      glow.className = 'glow';
+      document.body.appendChild(glow);
+      setTimeout(() => glow.remove(), 1000);
+    }
+  
+    // ---------------------------
+    // CHIME PLAYBACK
+    // ---------------------------
+    function playChime() {
+      const chimeAudio = document.getElementById('chimeAudio');
+      if (chimeAudio) {
+        chimeAudio.currentTime = 0;
+        chimeAudio.play();
+      }
+    }
+  
+    // ---------------------------
+    // UNIFIED INTERACTION HANDLER (PRESS & DRAG)
+    // ---------------------------
+    function startInteraction(e) {
+      e.stopPropagation();
+      if (e.type === "touchstart") e.preventDefault();
+  
+      const rose = this;
+      rose.isDragging = false;
+  
+      const startX = (e.type.startsWith("touch")) ? e.touches[0].clientX : e.clientX;
+      const startY = (e.type.startsWith("touch")) ? e.touches[0].clientY : e.clientY;
+      rose.startX = startX;
+      rose.startY = startY;
+  
+      const currentLeft = parseFloat(rose.style.left) || 0;
+      const currentTop = parseFloat(rose.style.top) || 0;
+      rose.startLeft = currentLeft;
+      rose.startTop = currentTop;
+  
+      rose.currentScale = 1;
+      rose.currentAngle = 0;
+      rose.lastUpdateTime = Date.now();
+  
+      rose.style.animation = 'none';
+  
+      function moveHandler(eMove) {
+        const moveX = (eMove.type.startsWith("touch")) ? eMove.touches[0].clientX : eMove.clientX;
+        const moveY = (eMove.type.startsWith("touch")) ? eMove.touches[0].clientY : eMove.clientY;
+        const dx = moveX - startX;
+        const dy = moveY - startY;
+  
+        if (!rose.isDragging && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+          rose.isDragging = true;
+        }
+  
+        if (rose.isDragging) {
+          rose.style.left = (rose.startLeft + dx) + 'px';
+          rose.style.top = (rose.startTop + dy) + 'px';
+        } else {
+          const now = Date.now();
+          const deltaTime = (now - rose.lastUpdateTime) / 1000;
+          rose.lastUpdateTime = now;
+          rose.currentScale = Math.max(rose.currentScale - (0.5 * deltaTime), 0.3);
+          rose.currentAngle += 10 * deltaTime;
+          rose.style.transform = `scale(${rose.currentScale}) rotate(${rose.currentAngle}deg)`;
+        }
+      }
+  
+      function upHandler(eUp) {
+        document.removeEventListener('mousemove', moveHandler);
+        document.removeEventListener('touchmove', moveHandler);
+        document.removeEventListener('mouseup', upHandler);
+        document.removeEventListener('touchend', upHandler);
+  
+        if (!rose.isDragging) {
+          const currentAngle = rose.currentAngle;
+          rose.style.transition = 'transform 0.5s ease-out';
+          rose.style.transform = `scale(1.5) rotate(${currentAngle + 360}deg)`;
+          rose.addEventListener('transitionend', function onTransitionEnd() {
+            rose.style.transition = '';
+            rose.removeEventListener('transitionend', onTransitionEnd);
+            playChime();
+            createGlow();
+            rose.style.animation = `floatAround ${8 + Math.random() * 4}s infinite ease-in-out`;
+          });
+        } else {
+          rose.style.animation = `floatAround ${8 + Math.random() * 4}s infinite ease-in-out`;
+        }
+      }
+  
+      document.addEventListener('mousemove', moveHandler);
+      document.addEventListener('touchmove', moveHandler);
+      document.addEventListener('mouseup', upHandler);
+      document.addEventListener('touchend', upHandler);
+    }
+  
+    function addInteractionListeners(rose) {
+      rose.addEventListener('mousedown', startInteraction);
+      rose.addEventListener('touchstart', startInteraction);
+    }
+  
+    function createRoses() {
+      const container = document.getElementById('container');
+      for (let i = 0; i < 50; i++) {
+        const rose = document.createElement('div');
+        rose.className = 'rose';
+        rose.innerHTML = '<img src="./rose-float.png" alt="rose" />';
+        rose.style.left = Math.random() * 100 + 'vw';
+        rose.style.top = Math.random() * 100 + 'vh';
+        rose.style.animationDuration = 8 + Math.random() * 4 + 's';
+        rose.style.width = '100px';
+        rose.style.height = '100px';
+        addInteractionListeners(rose);
+        container.appendChild(rose);
+      }
+    }
+  
+    function createInteractiveRose(e) {
+      if (
+        e.target === document.body ||
+        e.target === document.getElementById('container')
+      ) {
+        const rose = document.createElement('div');
+        rose.className = 'rose';
+        rose.innerHTML = '<img src="./rose-float.png" alt="rose" />';
+        rose.style.left = e.pageX + 'px';
+        rose.style.top = e.pageY + 'px';
+        rose.style.animationDuration = 8 + Math.random() * 4 + 's';
+        rose.style.width = '100px';
+        rose.style.height = '100px';
+        addInteractionListeners(rose);
+        document.body.appendChild(rose);
+        setTimeout(() => {
+          if (rose.parentNode) {
+            rose.remove();
+          }
+        }, 5000);
+      }
+    }
+  
+    function showMessage() {
+      document.getElementById('messageBox').classList.add('show');
+    }
+  
+    // Modified: Auto-play the audio on document load.
+    function playAudio() {
+      const audio = document.getElementById('myAudio');
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play();
+      }
+    }
+  
+    // New function to open Telegram using the tg:// URL scheme.
+    function openTelegram() {
+      // Replace "YourTelegramUsername" with your actual Telegram username.
+    window.location.href = "tg://resolve?phone=+918340247339";
+    }
+  
+    createRoses();
+    document.body.addEventListener('click', showMessage, { once: true });
+    document.addEventListener('click', createInteractiveRose);
+  
+    // Wait for all resources to load before revealing the page and starting the audio.
+    window.addEventListener("load", function() {
+      document.body.style.visibility = "visible";
+      playAudio();
+    });
+  </script>
+</body>
+</html>
